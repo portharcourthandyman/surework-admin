@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
@@ -39,16 +39,68 @@ const navItems = [
   { href: "/admin/settings", label: "Settings", icon: Settings },
 ];
 
+function formatAdminBadge(count: number): string | null {
+  if (!count || count <= 0) return null;
+  return count > 9 ? "9+" : String(count);
+}
+
 interface SidebarProps {
   adminName: string;
   pendingCount?: number;
+  pendingPayoutsCount?: number;
+  stuckPaymentsCount?: number;
   mobileOpen?: boolean;
   onClose?: () => void;
 }
 
-export function Sidebar({ adminName, pendingCount = 0, mobileOpen = false, onClose }: SidebarProps) {
+export function Sidebar({
+  adminName,
+  pendingCount = 0,
+  pendingPayoutsCount = 0,
+  stuckPaymentsCount = 0,
+  mobileOpen = false,
+  onClose,
+}: SidebarProps) {
   const pathname = usePathname();
   const [collapsed, setCollapsed] = useState(false);
+  const [counts, setCounts] = useState({
+    pendingApplications: pendingCount,
+    pendingPayouts: pendingPayoutsCount,
+    stuckPayments: stuckPaymentsCount,
+  });
+
+  useEffect(() => {
+    setCounts({
+      pendingApplications: pendingCount,
+      pendingPayouts: pendingPayoutsCount,
+      stuckPayments: stuckPaymentsCount,
+    });
+  }, [pendingCount, pendingPayoutsCount, stuckPaymentsCount]);
+
+  useEffect(() => {
+    let isMounted = true;
+    const fetchCounts = async () => {
+      try {
+        const res = await fetch("/api/admin/counts");
+        if (res.ok) {
+          const data = await res.json();
+          if (isMounted) {
+            setCounts({
+              pendingApplications: data.pendingApplications ?? 0,
+              pendingPayouts: data.pendingPayouts ?? 0,
+              stuckPayments: data.stuckPayments ?? 0,
+            });
+          }
+        }
+      } catch {}
+    };
+
+    const interval = setInterval(fetchCounts, 30000);
+    return () => {
+      isMounted = false;
+      clearInterval(interval);
+    };
+  }, []);
 
   return (
     <>
@@ -116,7 +168,17 @@ export function Sidebar({ adminName, pendingCount = 0, mobileOpen = false, onClo
             const isActive = item.exact
               ? pathname === item.href
               : pathname.startsWith(item.href);
-            const isPending = item.href === "/admin/applications" && pendingCount > 0;
+
+            const appBadge = item.href === "/admin/applications"
+              ? formatAdminBadge(counts.pendingApplications)
+              : null;
+            const payoutBadge = item.href === "/admin/payments"
+              ? formatAdminBadge(counts.pendingPayouts)
+              : null;
+            const stuckBadge = item.href === "/admin/payments"
+              ? formatAdminBadge(counts.stuckPayments)
+              : null;
+            const hasAttention = Boolean(appBadge || payoutBadge || stuckBadge);
 
             return (
               <Link
@@ -124,32 +186,67 @@ export function Sidebar({ adminName, pendingCount = 0, mobileOpen = false, onClo
                 href={item.href}
                 onClick={onClose} // Auto-close sidebar on link click on mobile viewports
                 className={cn(
-                  "flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-150 group",
+                  "flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-150 group relative",
                   isActive
                     ? "bg-blue-600 text-white shadow-lg shadow-blue-600/20"
                     : "text-slate-400 hover:text-white hover:bg-slate-800"
                 )}
                 title={collapsed ? item.label : undefined}
               >
-                <item.icon
-                  size={18}
-                  className={cn(
-                    "flex-shrink-0 transition-transform group-hover:scale-110",
-                    isActive ? "text-white" : "text-slate-400 group-hover:text-white"
+                <div className="relative flex-shrink-0">
+                  <item.icon
+                    size={18}
+                    className={cn(
+                      "transition-transform group-hover:scale-110",
+                      isActive ? "text-white" : "text-slate-400 group-hover:text-white"
+                    )}
+                  />
+                  {collapsed && hasAttention && (
+                    <span
+                      className={cn(
+                        "absolute -top-1 -right-1 w-2 h-2 rounded-full ring-2 ring-slate-900",
+                        stuckBadge ? "bg-rose-500" : "bg-amber-500"
+                      )}
+                    />
                   )}
-                />
+                </div>
                 <span className={cn("block", collapsed && "md:hidden", "flex-1 truncate")}>
                   {item.label}
                 </span>
-                {isPending && (
+
+                {/* Handyman Applications Badge */}
+                {appBadge && (
                   <span
                     className={cn(
                       "flex-shrink-0 bg-amber-500 text-white text-xs font-bold px-1.5 py-0.5 rounded-full min-w-[20px] text-center",
                       collapsed && "md:hidden"
                     )}
+                    title={`${counts.pendingApplications} pending application(s)`}
                   >
-                    {pendingCount > 99 ? "99+" : pendingCount}
+                    {appBadge}
                   </span>
+                )}
+
+                {/* Payments & Payouts Badges */}
+                {item.href === "/admin/payments" && (payoutBadge || stuckBadge) && (
+                  <div className={cn("flex items-center gap-1 flex-shrink-0", collapsed && "md:hidden")}>
+                    {payoutBadge && (
+                      <span
+                        className="bg-amber-500 text-white text-xs font-bold px-1.5 py-0.5 rounded-full min-w-[20px] text-center"
+                        title={`${counts.pendingPayouts} pending payout request(s)`}
+                      >
+                        {payoutBadge}
+                      </span>
+                    )}
+                    {stuckBadge && (
+                      <span
+                        className="bg-rose-600 text-white text-xs font-bold px-1.5 py-0.5 rounded-full min-w-[20px] text-center"
+                        title={`${counts.stuckPayments} stuck payment(s) pending >15 mins`}
+                      >
+                        {stuckBadge}
+                      </span>
+                    )}
+                  </div>
                 )}
               </Link>
             );

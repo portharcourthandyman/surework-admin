@@ -148,3 +148,21 @@ export async function getStuckPayments(thresholdMinutes = 15) {
     .where(and(eq(payments.status, "pending"), lte(payments.createdAt, cutoff)))
     .orderBy(desc(payments.createdAt));
 }
+
+export async function getPendingPayoutsCount() {
+  const [{ total }] = await db
+    .select({ total: count() })
+    .from(payoutRequests)
+    .where(eq(payoutRequests.status, "pending"));
+  return Number(total ?? 0);
+}
+
+export async function getStuckPaymentsCount(thresholdMinutes = 15) {
+  const cutoff = new Date(Date.now() - thresholdMinutes * 60 * 1000);
+  const [{ total }] = await db
+    .select({ total: count() })
+    .from(payments)
+    .where(and(eq(payments.status, "pending"), lte(payments.createdAt, cutoff)));
+  return Number(total ?? 0);
+}
+

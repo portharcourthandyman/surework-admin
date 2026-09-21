@@ -7,10 +7,18 @@ import { Menu } from "lucide-react";
 interface AdminShellProps {
   adminName: string;
   pendingCount: number;
+  pendingPayoutsCount?: number;
+  stuckPaymentsCount?: number;
   children: React.ReactNode;
 }
 
-export function AdminShell({ adminName, pendingCount, children }: AdminShellProps) {
+export function AdminShell({
+  adminName,
+  pendingCount,
+  pendingPayoutsCount = 0,
+  stuckPaymentsCount = 0,
+  children,
+}: AdminShellProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
@@ -19,6 +27,8 @@ export function AdminShell({ adminName, pendingCount, children }: AdminShellProp
       <Sidebar
         adminName={adminName}
         pendingCount={pendingCount}
+        pendingPayoutsCount={pendingPayoutsCount}
+        stuckPaymentsCount={stuckPaymentsCount}
         mobileOpen={mobileOpen}
         onClose={() => setMobileOpen(false)}
       />

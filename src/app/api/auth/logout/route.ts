@@ -7,7 +7,7 @@ async function handleLogout(request: NextRequest) {
   const cookieStore = await cookies();
   cookieStore.delete(COOKIE_NAME);
 
-  const redirectUrl = new URL("/admin", request.url);
+  const redirectUrl = new URL("/login", request.url);
   const response = NextResponse.redirect(redirectUrl, 303);
 
   // Explicitly clear cookie on the response with path "/"

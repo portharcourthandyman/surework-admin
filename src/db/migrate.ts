@@ -117,6 +117,23 @@ async function migrate() {
     `;
     console.log("  ✓ email_jobs");
 
+    // 9. contact_submissions
+    await sql`
+      CREATE TABLE IF NOT EXISTS "contact_submissions" (
+        "id" serial PRIMARY KEY NOT NULL,
+        "name" varchar(255) NOT NULL,
+        "email" varchar(255) NOT NULL,
+        "phone" varchar(50),
+        "category" varchar(100),
+        "subject" varchar(500),
+        "message" text NOT NULL,
+        "email_sent" boolean DEFAULT false NOT NULL,
+        "email_error" text,
+        "created_at" timestamp DEFAULT now() NOT NULL
+      );
+    `;
+    console.log("  ✓ contact_submissions");
+
     console.log("\n✅ All migrations applied successfully!");
   } catch (err) {
     console.error("❌ Migration failed:", err);
