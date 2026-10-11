@@ -7,7 +7,7 @@ import { eq } from "drizzle-orm";
 const BACKEND_URL =
   process.env.NEXT_PUBLIC_APP_URL ||
   process.env.NEXT_PUBLIC_API_URL ||
-  "https://backend-surework-production.up.railway.app";
+  "https://surework-backend-production.up.railway.app";
 
 export async function POST(request: NextRequest) {
   try {

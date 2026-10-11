@@ -5,7 +5,7 @@ import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { CheckCircle, AlertCircle, Eye, EyeOff, Lock } from "lucide-react";
 
-const API_URL = process.env.NEXT_PUBLIC_APP_URL || "https://backend-surework-production.up.railway.app";
+const API_URL = process.env.NEXT_PUBLIC_APP_URL || "https://surework-backend-production.up.railway.app";
 
 function ResetPasswordForm() {
   const searchParams = useSearchParams();

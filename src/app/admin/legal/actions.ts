@@ -68,6 +68,10 @@ export async function publishDocumentAction(formData: FormData) {
 
     revalidatePath("/admin/legal");
     revalidatePath(`/admin/legal/${documentType}`);
+    revalidatePath("/terms");
+    revalidatePath("/privacy");
+    revalidatePath("/customer-terms");
+    revalidatePath("/handyman-terms");
     return { success: true, version: published.version };
   } catch (err: any) {
     console.error("Failed to publish document:", err);

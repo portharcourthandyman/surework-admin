@@ -3,7 +3,7 @@ import { getSession } from "@/lib/session";
 
 const BACKEND_URL =
   process.env.NEXT_PUBLIC_APP_URL ||
-  "https://backend-surework-production.up.railway.app";
+  "https://surework-backend-production.up.railway.app";
 
 
 export async function POST(
