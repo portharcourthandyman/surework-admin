@@ -19,14 +19,17 @@ const NAV_LINKS = [
 ];
 
 export function Header() {
-  const { isDark, toggleTheme } = useTheme();
+  const { isDark, toggleTheme, mounted } = useTheme();
   const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
-    <header className={`sticky top-0 z-50 backdrop-blur-md border-b transition-colors duration-300 ${
-      isDark ? "bg-slate-950/85 border-slate-800/60" : "bg-white/85 border-slate-200/80"
-    } px-4 sm:px-6 lg:px-8`}>
+    <header 
+      suppressHydrationWarning
+      className={`sticky top-0 z-50 backdrop-blur-md border-b transition-colors duration-300 ${
+        isDark ? "bg-slate-950/85 border-slate-800/60" : "bg-white/85 border-slate-200/80"
+      } px-4 sm:px-6 lg:px-8`}
+    >
       <div className="max-w-7xl mx-auto flex items-center justify-between h-16 sm:h-20">
         
         {/* Brand Logo & Name */}
@@ -78,15 +81,20 @@ export function Header() {
           {/* Theme Toggle Button */}
           <button
             onClick={toggleTheme}
-            className={`p-2 sm:p-2.5 rounded-xl  transition-all hover:scale-105 cursor-pointer ${
-              isDark 
-                ? "bg-slate-900 border-slate-800 text-amber-400 hover:bg-slate-800 hover:border-slate-700" 
-                : "bg-white border-slate-200 text-indigo-600 hover:bg-slate-100 hover:border-slate-300"
+            suppressHydrationWarning
+            className={`p-2 sm:p-2.5 rounded-xl transition-all hover:scale-105 cursor-pointer ${
+              mounted && !isDark
+                ? "bg-white border-slate-200 text-indigo-600 hover:bg-slate-100 hover:border-slate-300"
+                : "bg-slate-900 border-slate-800 text-amber-400 hover:bg-slate-800 hover:border-slate-700"
             }`}
-            title={isDark ? "Switch to Light Mode" : "Switch to Dark Mode"}
+            title={mounted ? (isDark ? "Switch to Light Mode" : "Switch to Dark Mode") : "Switch to Light Mode"}
             aria-label="Toggle Theme"
           >
-            {isDark ? <Sun size={18} className="animate-pulse" /> : <Moon size={18} />}
+            {mounted ? (
+              isDark ? <Sun size={18} className="animate-pulse" /> : <Moon size={18} />
+            ) : (
+              <Sun size={18} className="animate-pulse" />
+            )}
           </button>
 
           {/* Download Store Badges */}
@@ -103,6 +111,7 @@ export function Header() {
                 alt="Get it on Google Play"
                 width={120}
                 height={36}
+                style={{ width: "auto" }}
                 className="h-9 w-auto"
               />
             </a>
@@ -118,6 +127,7 @@ export function Header() {
                 alt="Download Android APK"
                 width={120}
                 height={36}
+                style={{ width: "auto" }}
                 className="h-9 w-auto"
               />
             </a>

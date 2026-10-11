@@ -57,6 +57,7 @@ export function Footer() {
                   alt="Get it on Google Play"
                   width={135}
                   height={40}
+                  style={{ width: "auto" }}
                   className="h-10 w-auto"
                 />
               </a>
@@ -72,6 +73,7 @@ export function Footer() {
                   alt="Download Android APK"
                   width={135}
                   height={40}
+                  style={{ width: "auto" }}
                   className="h-10 w-auto"
                 />
               </a>

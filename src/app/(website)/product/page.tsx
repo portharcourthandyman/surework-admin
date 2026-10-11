@@ -309,6 +309,7 @@ export default function ProductPage() {
                   alt="Get it on Google Play"
                   width={180}
                   height={53}
+                  style={{ width: "auto" }}
                   className="h-14 w-auto"
                   priority
                 />
@@ -326,6 +327,7 @@ export default function ProductPage() {
                   alt="Download Android APK"
                   width={180}
                   height={53}
+                  style={{ width: "auto" }}
                   className="h-14 w-auto"
                   priority
                 />

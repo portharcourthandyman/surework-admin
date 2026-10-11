@@ -8,6 +8,7 @@ interface ThemeContextType {
   theme: Theme;
   toggleTheme: () => void;
   isDark: boolean;
+  mounted: boolean;
 }
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
@@ -17,16 +18,13 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setMounted(true);
-      const savedTheme = localStorage.getItem("theme") as Theme | null;
-      if (savedTheme === "light" || savedTheme === "dark") {
-        setTheme(savedTheme);
-      } else if (window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches) {
-        setTheme("light");
-      }
-    }, 0);
-    return () => clearTimeout(timer);
+    setMounted(true);
+    const savedTheme = localStorage.getItem("theme") as Theme | null;
+    if (savedTheme === "light" || savedTheme === "dark") {
+      setTheme(savedTheme);
+    } else if (window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches) {
+      setTheme("light");
+    }
   }, []);
 
   useEffect(() => {
@@ -48,10 +46,13 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const isDark = theme === "dark";
 
   return (
-    <ThemeContext.Provider value={{ theme, toggleTheme, isDark }}>
-      <div className={`min-h-screen transition-colors duration-300 font-sans ${
-        isDark ? "dark bg-slate-950 text-white selection:bg-blue-600 selection:text-white" : "bg-slate-50 text-slate-900 selection:bg-blue-600 selection:text-white"
-      }`}>
+    <ThemeContext.Provider value={{ theme, toggleTheme, isDark, mounted }}>
+      <div 
+        suppressHydrationWarning
+        className={`min-h-screen transition-colors duration-300 font-sans ${
+          isDark ? "dark bg-slate-950 text-white selection:bg-blue-600 selection:text-white" : "bg-slate-50 text-slate-900 selection:bg-blue-600 selection:text-white"
+        }`}
+      >
         {children}
       </div>
     </ThemeContext.Provider>

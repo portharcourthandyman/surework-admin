@@ -130,6 +130,7 @@ export default function HomePage() {
             expectedPath="/images/hero-image.jpg"
             fill
             priority
+            loading="eager"
             sizes="100vw"
             className="object-cover"
           />
